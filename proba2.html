@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>BOMBOCLAT</title>
+</head>
+<style>
+    body{
+        position: absolute;
+        height: 100vh;
+        width: 100%;
+        margin: 0px;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        text-align: center;
+        font-size: 1vw;
+    }
+    #main{
+        width: 30vw;
+        height: 37.5vw;
+        left: 35vw;
+        position: relative;
+        border: 1px solid black;
+    }
+    .pola{
+        border: 1px solid black;
+        box-sizing: border-box;
+    }
+    #przegryw{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 3;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: none;
+    }
+    #wybor{
+        margin: 0.5vw;
+    }
+    #przegrywtresc{
+        text-align: center;
+        top: 25%;
+        left: 43%;
+        width: 14vw;
+        position: relative;
+        background-color: gray;
+    }
+    .bombawybuchla{
+        background-color: black;
+    }
+    #gra{
+        width: 100%;
+        height: 30vw;
+        display: flex;
+        flex-wrap: wrap;
+        position: relative;
+    }
+    #flagi{
+        height: 5vw;
+        width: 100%;
+    }
+    #flagaprzelacznik{
+        background-image: url(pasywa.png);
+        width: 4vw;
+        height: 4vw;
+        background-size: cover;
+        border: 1px solid black;
+    }
+    #divbezciekawejnazwy{
+        pointer-events: none;
+    }
+    #trudnosc{
+        width: 100%;
+        height: 2.5vw;
+    }
+    .bomba{
+        background-color: black;
+    }
+    #postawione{
+        width: 4vw;
+        height: 4vw;
+        border: 1px solid black;
+    }
+    #postawione, #flagaprzelacznik{
+        display: inline-flex;
+        box-sizing: border-box;
+    }
+</style>
+<body>
+    <div id="przegryw">
+        <div id="przegrywtresc">
+            <h1>
+                Przegrałeś
+            </h1>
+            <button onclick="restart()">
+                No ok
+            </button>
+        </div>
+    </div>
+    <h1>
+        Saper
+    </h1>
+    <div id="main">
+        <div id="trudnosc">
+            <label for="wybor">Wybierz poziom trudności:</label>
+            <input list="trudnosci" id="wybor" required>
+            <datalist id="trudnosci">
+                <option value="Łatwy">plansza 8x8, 10 min</option>
+                <option value="Normalny">plansza 16x16, 40 min</option>
+                <option value="Trudny">plansza 30x16, 99 min</option>
+            </datalist> 
+            <button onclick="xd()" id="start">
+                Start
+            </button>
+        </div>
+        <div id="divbezciekawejnazwy">       
+            <div id="flagi">
+                <div id="postawione">
+                </div>
+                <button onclick="flaga()" id="flagaprzelacznik">
+                </button>
+            </div>
+            <div id="gra">
+            </div>
+        </div>
+    </div>
+    <button onclick="restart()">
+        Restart
+    </button>
+    <script>
+        var liczbapol = 0               
+        var liczbabomb = 0
+        var liczbarzedow = 0
+        var liczbakolumn = 0
+        var czasmiedzypolami/*ms*/ = 5  
+        var wylosowane = [];   
+        var czyjestflaga = 0
+        var postawioneflagi = 0              /*ustawianie flagi*/
+        function flaga(){
+            czyjestflaga = czyjestflaga === 0 ? 1 : 0
+            console.log(czyjestflaga)
+        }   
+        function xd(){                              /*ogarnianie trudności */
+            let trudnosc = document.getElementById('wybor').value
+            switch(trudnosc){
+                case "Łatwy":
+                    liczbapol = 64
+                    liczbabomb = 10
+                    liczbarzedow = liczbakolumn = 8
+                    break
+                case "Normalny":
+                    liczbapol = 256
+                    liczbabomb = 40
+                    liczbarzedow = liczbakolumn = 16
+                    break
+                case "Trudny":
+                    liczbapol = 480
+                    liczbabomb = 99
+                    liczbakolumn = 30
+                    liczbarzedow = 16
+                    break
+                default:
+                    restart()
+                    break
+            }
+
+            for(var i=0; i<liczbapol; i++){         /*Generowanie planszy */
+                tworzeniepola(i)
+            }
+
+            function tworzeniepola(i){                  
+                setTimeout(function(){
+                    const diw = document.createElement("div")
+                    diw.setAttribute("id", i)
+                    diw.setAttribute("class", "pola")
+                    const gdzie = document.getElementById("gra");
+                    gdzie.appendChild(diw)
+                    switch(liczbapol){
+                        case 64:
+                            document.getElementById(i).style.height="12.5%"
+                            document.getElementById(i).style.width="12.5%"
+                            break
+                        case 256:
+                            document.getElementById(i).style.height="6.25%"
+                            document.getElementById(i).style.width="6.25%"
+                            break
+                        case 480:
+                            document.getElementById('main').style.width="56.25vw"
+                            document.getElementById('main').style.left="21.875vw"
+                            document.getElementById(i).style.height="6.25%"
+                            document.getElementById(i).style.width="3.333333333333333%"
+                            break
+                    }
+                    document.getElementById(i).addEventListener("click", klik)
+                }, czasmiedzypolami * i)
+            }
+
+                setTimeout(function (){                     /*losowanie bomby*/
+                    while (wylosowane.length < liczbabomb) {
+                        let losowe = Math.floor(Math.random() * liczbapol);
+                        if (!wylosowane.includes(losowe)) {
+                            var divzbomba = losowe;
+                            document.getElementById(divzbomba).addEventListener("click", klikwbombe);
+                            console.log(divzbomba);
+                            wylosowane.push(losowe);
+                            document.getElementById(divzbomba).classList.add('bomba')
+                            document.getElementById(divzbomba).removeEventListener("click", klik)
+                        }
+                    }
+                    document.getElementById('divbezciekawejnazwy').style.pointerEvents="auto"
+                }, (czasmiedzypolami + 1) * liczbapol)
+            
+                function klikwbombe(){                      /*co po kliknięciu w bombę*/ 
+                    const idkliknietegobomba = event.target.id
+                    let elementidbomba = document.getElementById(idkliknietegobomba)
+                    if (czyjestflaga == 1) {
+                        if (elementidbomba.style.backgroundImage === 'url("pasywa.png")') {
+                            elementidbomba.style.backgroundImage = '';
+                            postawioneflagi--;
+                        } 
+                        else if (postawioneflagi != liczbabomb) {
+                            elementidbomba.style.backgroundImage = 'url(pasywa.png)';
+                            postawioneflagi++;
+                        }
+                    }
+                    else {
+                        elementidbomba.style.backgroundColor = "black";
+                        przegrana();
+                    }
+                }
+            document.getElementById('start').disabled = true
+        }
+        function restart(){
+            location.reload()
+        }
+        function przegrana(){
+            document.getElementById('przegryw').style.display="block"
+        }
+        function klik(){
+            let idkliknietego = +event.target.id
+            let elementidkliknietego = document.getElementById(idkliknietego)
+            if (czyjestflaga == 1) {
+                if (elementidkliknietego.style.backgroundImage === 'url("pasywa.png")') {
+                    elementidkliknietego.style.backgroundImage = '';
+                    postawioneflagi--;
+                } 
+                else if (postawioneflagi < liczbabomb) {
+                    elementidkliknietego.style.backgroundImage = 'url(pasywa.png)';
+                    postawioneflagi++;
+                }
+            }
+            else{
+                var sasiedzi = [
+                idkliknietego - liczbakolumn - 1,
+                idkliknietego - liczbakolumn,
+                idkliknietego - liczbakolumn + 1,
+                idkliknietego - 1,
+                idkliknietego + 1,
+                idkliknietego + liczbakolumn - 1,
+                idkliknietego + liczbakolumn,
+                idkliknietego + liczbakolumn + 1
+                ]
+                if(idkliknietego - liczbakolumn >= 0 && idkliknietego % liczbakolumn != liczbakolumn - 1 && idkliknietego % liczbakolumn != 0 && Math.floor(idkliknietego/liczbakolumn) != liczbarzedow -1 && czyjestflaga == 0){
+                    console.log(idkliknietego)
+                    console.log(sasiedzi)
+                    let wspolne = sasiedzi.filter(value => wylosowane.includes(value))
+                    let iloscwspolnych = wspolne.length
+                    console.log(iloscwspolnych)
+                    document.getElementById(idkliknietego).innerHTML = iloscwspolnych
+                }
+            }
+        }
+    </script>
+</body>
+</html>
