@@ -108,7 +108,7 @@
                 <option value="Normalny">plansza 16x16, 40 min</option>
                 <option value="Trudny">plansza 30x16, 99 min</option>
             </datalist> 
-            <button onclick="xd()" id="start">
+            <button onclick="start()" id="start">
                 Start
             </button>
         </div>
@@ -139,7 +139,7 @@
             czyjestflaga = czyjestflaga === 0 ? 1 : 0
             console.log(czyjestflaga)
         }   
-        function xd(){                              /*ogarnianie trudności */
+        function start(){                              /*ogarnianie trudności */
             let trudnosc = document.getElementById('wybor').value
             switch(trudnosc){
                 case "Łatwy":
@@ -193,8 +193,7 @@
                     document.getElementById(i).addEventListener("click", klik)
                 }, czasmiedzypolami * i)
             }
-
-                setTimeout(function (){                     /*losowanie bomby*/
+                setTimeout(function (){                     /*losowanie bomby i usuwanie flagi klikając w nią drugi raz*/
                     while (wylosowane.length < liczbabomb) {
                         let losowe = Math.floor(Math.random() * liczbapol);
                         if (!wylosowane.includes(losowe)) {
@@ -235,7 +234,7 @@
         function przegrana(){
             document.getElementById('przegryw').style.display="block"
         }
-        function klik(){
+        function klik(){                                    /*detekcja sąsiadów i usuwanie flagi klikając w nią drugi raz*/
             let idkliknietego = +event.target.id
             let elementidkliknietego = document.getElementById(idkliknietego)
             if (czyjestflaga == 1) {
