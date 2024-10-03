@@ -162,11 +162,9 @@
                     restart()
                     break
             }
-
             for(var i=0; i<liczbapol; i++){         /*Generowanie planszy */
                 tworzeniepola(i)
             }
-
             function tworzeniepola(i){                  
                 setTimeout(function(){
                     const diw = document.createElement("div")
@@ -193,7 +191,7 @@
                     document.getElementById(i).addEventListener("click", klik)
                 }, czasmiedzypolami * i)
             }
-                setTimeout(function (){                     /*losowanie bomby i usuwanie flagi klikając w nią drugi raz*/
+                setTimeout(function (){                     /*losowanie bomby*/
                     while (wylosowane.length < liczbabomb) {
                         let losowe = Math.floor(Math.random() * liczbapol);
                         if (!wylosowane.includes(losowe)) {
@@ -208,7 +206,7 @@
                     document.getElementById('divbezciekawejnazwy').style.pointerEvents="auto"
                 }, (czasmiedzypolami + 1) * liczbapol)
             
-                function klikwbombe(){                      /*co po kliknięciu w bombę*/ 
+                function klikwbombe(){                      /*co po kliknięciu w bombę i usuwanie flagi klikając w nią drugi raz*/ 
                     const idkliknietegobomba = event.target.id
                     let elementidbomba = document.getElementById(idkliknietegobomba)
                     if (czyjestflaga == 1) {
@@ -264,7 +262,12 @@
                     let wspolne = sasiedzi.filter(value => wylosowane.includes(value))
                     let iloscwspolnych = wspolne.length
                     console.log(iloscwspolnych)
-                    document.getElementById(idkliknietego).innerHTML = iloscwspolnych
+                    if(iloscwspolnych > 0){
+                        document.getElementById(idkliknietego).innerHTML = iloscwspolnych
+                    }
+                    else{
+                        document.getElementById(idkliknietego).style.backgroundColor = "gray"
+                    }
                 }
             }
         }
